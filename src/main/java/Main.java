@@ -1,5 +1,8 @@
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -19,9 +22,20 @@ public class Main {
          serverSocket.setReuseAddress(true);
          // Wait for connection from client.
          clientSocket = serverSocket.accept();
+
+         InputStream input = clientSocket.getInputStream();
          OutputStream outputStream  = clientSocket.getOutputStream();
-         outputStream.write("+PONG\r\n".getBytes());
-       } catch (IOException e) {
+         BufferedReader br = new BufferedReader(new InputStreamReader(input));
+         String ping;
+
+         while((ping = br.readLine()) != null){
+
+          if((ping.contains("PING"))){
+            outputStream.write("+PONG\r\n".getBytes());
+          }
+         }
+         
+        } catch (IOException e) {
          System.out.println("IOException: " + e.getMessage());
        } finally {
          try {
