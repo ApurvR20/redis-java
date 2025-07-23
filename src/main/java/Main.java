@@ -23,7 +23,7 @@ public class Main {
       Pattern pattern = Pattern.compile("(\\d+)$");
       Matcher matcher = pattern.matcher(info[0]);
       if(matcher.find()){
-        l = Integer.parseInt(matcher.group(l));
+        l = Integer.parseInt(matcher.group());
       }
 
       for(int i = 1; i < l; i++){
