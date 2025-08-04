@@ -1,0 +1,90 @@
+Initiating test run...
+
+[32m⚡ This is a turbo test run. https://codecrafters.io/turbo[0m
+
+Running tests. Logs should appear shortly...
+
+[33m[compile][0m WARNING: A restricted method in java.lang.System has been called
+[33m[compile][0m WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/usr/share/maven/lib/jansi-2.4.1.jar)
+[33m[compile][0m WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+[33m[compile][0m WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+[33m[compile][0m 
+[33m[compile][0m WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+[33m[compile][0m WARNING: sun.misc.Unsafe::objectFieldOffset has been called by com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper (file:/usr/share/maven/lib/guava-33.2.1-jre.jar)
+[33m[compile][0m WARNING: Please consider reporting this to the maintainers of class com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper
+[33m[compile][0m WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[33m[compile][0m Moved ./.codecrafters/run.sh → ./your_program.sh
+[33m[compile][0m [32mCompilation successful.[0m
+
+Debug = true
+
+[33m[tester::#QQ0] [0m[94mRunning tests for Stage #QQ0 (Implement the ECHO command)[0m
+[33m[tester::#QQ0] [0m[94m$ ./your_program.sh[0m
+[33m[your_program] [0mLogs from your program will appear here!
+[33m[tester::#QQ0] [client] [0m[94m$ redis-cli ECHO apple[0m
+[33m[tester::#QQ0] [client] [0m[36mSent bytes: "*2\r\n$4\r\nECHO\r\n$5\r\napple\r\n"[0m
+[33m[your_program] [0mreq now : *2
+[33m[your_program] [0m$4
+[33m[your_program] [0mECHO
+[33m[your_program] [0m$5
+[33m[your_program] [0mapple
+[33m[your_program] [0m
+[33m[your_program] [0mfirstChar = *
+[33m[your_program] [0mitems,start,end = 2,4,2
+[33m[your_program] [0mlen = 4
+[33m[your_program] [0mstart = 8 end = 12
+[33m[your_program] [0mlen = 5
+[33m[your_program] [0mstart = 18 end = 23
+[33m[your_program] [0mres after processing : $5
+[33m[your_program] [0mapple
+[33m[your_program] [0m
+[33m[tester::#QQ0] [client] [0m[36mReceived bytes: "$5\r\napple\r\n"[0m
+[33m[tester::#QQ0] [client] [0m[36mReceived RESP bulk string: "apple"[0m
+[33m[tester::#QQ0] [client] [0m[92mReceived "apple"[0m
+[33m[tester::#QQ0] [0m[92mTest passed.[0m
+[33m[tester::#QQ0] [0m[36mTerminating program[0m
+[33m[tester::#QQ0] [0m[36mProgram terminated successfully[0m
+
+[33m[tester::#ZU2] [0m[94mRunning tests for Stage #ZU2 (Handle concurrent clients)[0m
+[33m[tester::#ZU2] [0m[94m$ ./your_program.sh[0m
+[33m[your_program] [0mLogs from your program will appear here!
+[33m[tester::#ZU2] [client-1] [0m[94m$ redis-cli PING[0m
+[33m[tester::#ZU2] [client-1] [0m[36mSent bytes: "*1\r\n$4\r\nPING\r\n"[0m
+[33m[your_program] [0mreq now : *1
+[33m[your_program] [0m$4
+[33m[your_program] [0mPING
+[33m[your_program] [0m
+[33m[your_program] [0mfirstChar = *
+[33m[your_program] [0mitems,start,end = 1,4,2
+[33m[your_program] [0mlen = 4
+[33m[your_program] [0mstart = 8 end = 12
+[33m[your_program] [0mres after processing : +PONG
+[33m[your_program] [0m
+[33m[tester::#ZU2] [client-1] [0m[36mReceived bytes: "+PONG\r\n"[0m
+[33m[tester::#ZU2] [client-1] [0m[36mReceived RESP simple string: "PONG"[0m
+[33m[tester::#ZU2] [client-1] [0m[92mReceived "PONG"[0m
+[33m[tester::#ZU2] [client-2] [0m[94m$ redis-cli PING[0m
+[33m[tester::#ZU2] [client-2] [0m[36mSent bytes: "*1\r\n$4\r\nPING\r\n"[0m
+[33m[tester::#ZU2] [client-2] [0m[36mReceived bytes: "+PONG\r\n"[0m
+[33m[tester::#ZU2] [client-2] [0m[36mReceived RESP simple string: "PONG"[0m
+[33m[tester::#ZU2] [client-2] [0m[92mReceived "PONG"[0m
+[33m[tester::#ZU2] [client-1] [0m[94m> PING[0m
+[33m[tester::#ZU2] [client-1] [0m[36mSent bytes: "*1\r\n$4\r\nPING\r\n"[0m
+[33m[your_program] [0mreq now : *1
+[33m[your_program] [0m$4
+[33m[your_program] [0mPING
+[33m[your_program] [0m
+[33m[your_program] [0mfirstChar = *
+[33m[your_program] [0mitems,start,end = 1,4,2
+[33m[your_program] [0mlen = 4
+[33m[your_program] [0mstart = 8 end = 12
+[33m[your_program] [0mres after processing : +PONG
+[33m[your_program] [0m
+[33m[tester::#ZU2] [0m[91mReceived: "" (no content received)[0m
+[33m[tester::#ZU2] [0m[91m           ^ error[0m
+[33m[tester::#ZU2] [0m[91mError: Expected start of a new RESP2 value (either +, -, :, $ or *)[0m
+[33m[tester::#ZU2] [0m[91mTest failed[0m
+[33m[tester::#ZU2] [0m[36mTerminating program[0m
+[33m[tester::#ZU2] [0m[36mProgram terminated successfully[0m
+
+View our article on debugging test failures: https://codecrafters.io/debug
