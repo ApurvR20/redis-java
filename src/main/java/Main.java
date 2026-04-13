@@ -6,12 +6,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import helpers.Parser;
+import store.KeyValueStore;
 
 public class Main {
   
   public static class MyRunnable implements Runnable{
     private Socket clientSocket;
     long threadID;
+    KeyValueStore kvstore = new KeyValueStore();
 
     public MyRunnable(Socket clientSocket){
       this.clientSocket = clientSocket;
@@ -46,7 +48,7 @@ public class Main {
       System.out.println("Running thread : "+threadID);
       OutputStream outputStream = null;
       String res,req="";
-      Parser parser = new Parser();
+      Parser parser = new Parser(kvstore);
       try {
         outputStream = clientSocket.getOutputStream();
       

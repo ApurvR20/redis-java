@@ -1,30 +1,57 @@
+/*
+ - do diff clients have diff kvstore? should they?
+- 
+
+- check if I'm correctly parsing time
+- check if im correctly rolling back if px is not listed
+- if im using a single queue to process all, how tf im supposed to insert the expiry at the correct location? say i have an expiry at 500 ms, and right now time is 200 ms. how do i schedule it so it doesnt block other requests between 200 and 500 ms?
+- then comes the main processing, how do i handle that in case of event loop solution?
+- can i let the keys delete themselves, bu letting them have a thread (?). (suicide bomb approach?) ?
+- another idea : keys keep track of the expiry, then submit request to the main thread to be deleted (prison approach)
+- do i need to change the logic of how CRLF is parsed over? Seems too complicated imo.
+ */
+
 package helpers;
 import store.KeyValueStore;
 
 public class Parser {
     
   private int start = 0, end = 0, offset = 0;
-  KeyValueStore kvStore = new KeyValueStore();
+  private KeyValueStore kvStore;
+
+  public Parser(KeyValueStore kvstore){
+    this.kvStore = kvstore;
+  }
 
   public String commandExecutor(String req, String query){
 
-    String res=query,key,value;
+    String res=query,key,value, next;
+    int expiryTime = 0;
     if(query.equalsIgnoreCase("ping")){
       res = "+PONG";
-    } else if(query.equalsIgnoreCase("echo")){
+    }
+    else if(query.equalsIgnoreCase("echo")){
       value = bulkStringParser(req);
       res = "$"+value.length()+"\r\n"+value;
       offset += 1;
-    } else if(query.equalsIgnoreCase("set")){
+    }
+    else if(query.equalsIgnoreCase("set")){
       key = bulkStringParser(req);
       value = bulkStringParser(req);
-      kvStore.set(key,value);
+      next = bulkStringParser(req);
+      if(next.equalsIgnoreCase("PX")){
+        expiryTime = Integer.parseInt(bulkStringParser(req));
+      } else {
+        start = rollBack(req, start);
+      }
+      kvStore.set(key,value,expiryTime);
       res = "+OK";
       offset += 2;
-    } else if(query.equalsIgnoreCase("get")){
+    }
+    else if(query.equalsIgnoreCase("get")){
       key = bulkStringParser(req);
       offset += 1;
-      if(kvStore.exists(key)){
+      if(kvStore.isAlive(key)){
         value = kvStore.get(key);
         res = "$"+value.length()+"\r\n"+value;
       } else {
@@ -35,8 +62,15 @@ public class Parser {
     return res;
   } 
 
-  public int CRLFfinder(String req, int start){
+  public int CRLFfinder(String req, int start) {
     return req.indexOf("\r\n",start);
+  }
+
+  //lets say this resets start properly,for now
+  public int rollBack(String req, int start){
+    int val = req.lastIndexOf("\r\n",start);
+    val = req.lastIndexOf("\r\n",val);
+    return req.lastIndexOf("\r\n",val)+1;
   }
 
   // [+/-/:]<string>\r\n

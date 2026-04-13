@@ -1,0 +1,10 @@
+I need to set keys with an expiry time, and remove them when they reach that expiry time.
+Sub-problems
+- parsing the different input, with and without expiry time
+- maintaining a program clock, that can track when a key came in, and when it can be revoked
+	- handling new requests as they come in, placing them according to their time
+	- seperating set and expiry into different requests, and handling them accordingly
+	- maintaining a queue (?) that when a certain time hits, resolves the front request
+		- is queue here a good idea ??
+		- what if, every key has a separate thread, which keeps track of its expiry, and when done, submits a release request to the main exec thread, which one processes, is released
+- should i split all values by crlf, seems no point to keep them. research more on more on this
