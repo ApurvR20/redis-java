@@ -25,8 +25,9 @@ public class Parser {
 
   public String commandExecutor(String req, String query){
 
-    String res=query,key,value, next;
-    int expiryTime = 0;
+    String res=query,key,value,next;
+    boolean willExpire;
+    int expiryTime;
     if(query.equalsIgnoreCase("ping")){
       res = "+PONG";
     }
@@ -36,26 +37,30 @@ public class Parser {
       offset += 1;
     }
     else if(query.equalsIgnoreCase("set")){
+      willExpire = false;
+      expiryTime = 0;
       key = bulkStringParser(req);
       value = bulkStringParser(req);
-      next = bulkStringParser(req);
-      if(next.equalsIgnoreCase("PX")){
-        expiryTime = Integer.parseInt(bulkStringParser(req));
-      } else {
-        start = rollBack(req, start);
+
+      if(start < req.length()){
+        next = bulkStringParser(req);
+        willExpire = true;
+        if(next.equalsIgnoreCase("PX")){
+          expiryTime = Integer.parseInt(bulkStringParser(req));
+        }
       }
-      kvStore.set(key,value,expiryTime);
+      kvStore.set(key,value,willExpire,expiryTime);
       res = "+OK";
       offset += 2;
     }
     else if(query.equalsIgnoreCase("get")){
       key = bulkStringParser(req);
       offset += 1;
-      if(kvStore.isAlive(key)){
-        value = kvStore.get(key);
-        res = "$"+value.length()+"\r\n"+value;
-      } else {
+      value = kvStore.get(key);
+      if(value.isEmpty()){
         res = "$-1";
+      } else {
+        res = "$"+value.length()+"\r\n"+value;
       }
     }
 
