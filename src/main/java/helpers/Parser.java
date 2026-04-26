@@ -16,7 +16,7 @@ import store.KeyValueStore;
 
 public class Parser {
     
-  private int start = 0, end = 0, offset = 0;
+  private int start = 0, end = 0;
   private KeyValueStore kvStore;
 
   public Parser(KeyValueStore kvstore){
@@ -34,7 +34,6 @@ public class Parser {
     else if(query.equalsIgnoreCase("echo")){
       value = bulkStringParser(req);
       res = "$"+value.length()+"\r\n"+value;
-      offset += 1;
     }
     else if(query.equalsIgnoreCase("set")){
       willExpire = false;
@@ -51,11 +50,9 @@ public class Parser {
       }
       kvStore.set(key,value,willExpire,expiryTime);
       res = "+OK";
-      offset += 2;
     }
     else if(query.equalsIgnoreCase("get")){
       key = bulkStringParser(req);
-      offset += 1;
       value = kvStore.get(key);
       if(value.isEmpty()){
         res = "$-1";
@@ -70,17 +67,10 @@ public class Parser {
   public int CRLFfinder(String req, int start) {
     return req.indexOf("\r\n",start);
   }
-
-  //lets say this resets start properly,for now
-  public int rollBack(String req, int start){
-    int val = req.lastIndexOf("\r\n",start);
-    val = req.lastIndexOf("\r\n",val);
-    return req.lastIndexOf("\r\n",val)+1;
-  }
-
+  
   // [+/-/:]<string>\r\n
   public String simpleParser(String req){
-    
+
     end = CRLFfinder(req, start);
     req = req.substring(start+1,end);
     start = end+2;
@@ -89,8 +79,8 @@ public class Parser {
 
   // $<length>\r\n<data>\r\n
   public String bulkStringParser(String req){
-    
-    int len = 0; 
+
+    int len = 0;
     String res="",query="",queryRes;
     end = CRLFfinder(req,start);
     len = Integer.parseInt(req.substring(start+1,end));
@@ -115,50 +105,40 @@ public class Parser {
   // *<number-of-elements>\r\n<element-1>...<element-n>
   public String arrayParser(String req){
     end = CRLFfinder(req, start);
-    int items = Integer.parseInt(req.substring(start+1,end));
     start = end+2;
     char ch;
     String res="";
-    while(items > 0){
+    int strLen = req.length();
+    while(start < strLen){
       ch = req.charAt(start);
       if(ch == '+' || ch == '-' || ch == ':'){
         res += (simpleParser(req)+"\r\n");
       } else if(req.charAt(start) == '$'){
         res += (bulkStringParser(req)+"\r\n");
-        items -= offset;
-        offset = 0;
-
       } else if(req.charAt(start) == '*'){
         res += arrayParser(req);
       }
-
-      items--;
     }
     return res;
   }
 
 
   public String requestParser(String req){
-    
+
     String res="";
     start = 0;
     end = 0;
-    try {
-      //collecting req including CRLF
-      char firstChar = req.charAt(0);
+    char firstChar = req.charAt(0);
 
-      //processing req into res as a RESP bulk string
-      if(firstChar == '+' || firstChar == '-' || firstChar == ':'){
-        res = simpleParser(req);
-      } else if(firstChar == '$'){
-        res = bulkStringParser(req);
-      } else {
-        res = arrayParser(req);
-      }
+    //processing req into res as a RESP bulk string
+    if(firstChar == '+' || firstChar == '-' || firstChar == ':'){
+      res = simpleParser(req);
+    } else if(firstChar == '$'){
+      res = bulkStringParser(req);
+    } else {
+      res = arrayParser(req);
     }
-      catch (Exception e) {
-      System.out.println("1 : IOException : "+e);
-    }
+
     return res;
   }
 }
